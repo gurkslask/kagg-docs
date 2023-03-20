@@ -1,0 +1,80 @@
+---
+- hosts: all
+  become: true
+  vars:
+    created_username: alex
+
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+          
+    - name: setup passwordless sudo
+      lineinfile:
+        path: /etc/sudoers
+        state: present
+        regexp: '^%sudo'
+        line: '%sudo ALL=(ALL) NOPASSWD: ALL'
+        validate: '/usr/sbin/visudo -cf %s'
+
+    - name: Create user with sudo
+      user:
+        name: "{{ created_username }}"
+        state: present
+        groups: sudo
+        append: true
+        create_home: true
+        shell: /bin/bash
+
+    - name: Set ssh key for user
+      ansible.posix.authorized_key:
+        user: "{{ created_username }}"
+        state: present
+        key: "{{ lookup('file', lookup('env', 'HOME') + '/.ssh/id_rsa.pub') }}"
+
+    - name: Dissable password for root
+      lineinfile:
+        path: /etc/ssh/sshd_config
+        state: present
+        regexp: '^#?PermitRootLogin'
+        line: 'PermitRootLogin prohibit-password'
+
+    - name: Update and install packages
+      apt:
+        pkg:
+          - curl
+          - vim
+          - git
+          - ufw
+          - neovim
+          - nginx  
+        state: latest
+        update_cache: true
+
+    - name: UFW Allow ssh
+      community.general.ufw:
+        rule: allow
+        name: OpenSSH
+
+    - name: UFW Allow nginx
+      community.general.ufw:
+        rule: allow
+        name: nginx full
+
+
+    - name: UFW - Enable and deny by default
+      community.general.ufw:
+        state: enabled
+        default: deny
+
+    - name: Upload website
+      synchronize:
+        src: ./html/
+        dest: /var/www/html/
+
+    - name: remove default index
+      file:
+        path: /var/www/html/index.nginx-debian.html
+        state: absent
