@@ -1,0 +1,4 @@
+id	label	region	type	image	status	ipv4
+43989625	Elev1	eu-west	g6-nanode-1	linode/ubuntu22.04	running	143.42.240.65
+43989629	Elev2	eu-west	g6-nanode-1	linode/ubuntu22.04	running	143.42.240.4
+43989632	Elev3	eu-west	g6-nanode-1	linode/ubuntu22.04	running	139.144.153.16
