@@ -1,0 +1,74 @@
+---
+- hosts: all
+  become: true
+  vars:
+    created_username: alex
+
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+          
+
+    - name: Update and install packages
+      apt:
+        pkg:
+          - curl
+          - vim
+          - git
+          - ufw
+          - neovim
+          - nginx  
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+
+    - name: Update apt and install docker-compose
+      apt:
+        name: docker-compose
+        state: latest
+        update_cache: true
+
+    - name: copy tsk config file
+      copy:
+        src: ./stk_config.xml
+        dest: /home/alex/stk_config.xml
+
+    - name: Start tsk container
+      docker_container:
+        name: stk_server
+        image: timoschwarzer/supertuxkart-server
+        state: started
+        ports:
+          - 2757:2757
+          - 2759:2759
+        volumes:
+          - /home/alex/stk_config.xml:/app/config.xml
