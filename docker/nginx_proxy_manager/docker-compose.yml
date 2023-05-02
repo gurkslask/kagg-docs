@@ -1,0 +1,65 @@
+version: '2'
+  
+services:
+  web1:
+    container_name: odin
+    image: nginx
+    networks:
+      - valhalla
+    volumes:
+      - ../nginx_web/html:/usr/share/nginx/html
+    ports:
+      - "83:80"
+        
+
+  web2:
+    container_name: thor
+    image: nginx
+    networks:
+      - valhalla
+    volumes:
+      - ../nginx_web2/html:/usr/share/nginx/html
+    ports:
+      - "82:80"
+        
+  proxy:
+    container_name: heimdall
+    image: 'jc21/nginx-proxy-manager:latest'
+    restart: unless-stopped
+    networks:
+      - valhalla
+    ports:
+      - '80:80'
+      - '81:81'
+      - '443:443'
+    volumes:
+      - ./data:/data
+      - ./letsencrypt:/etc/letsencrypt
+    environment:
+      # Mysql/Maria connection parameters:
+      DB_MYSQL_HOST: "yggdrasil"
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: "npm"
+      DB_MYSQL_PASSWORD: "npm"
+      DB_MYSQL_NAME: "npm"
+    depends_on: 
+       - "yggdrasil"
+
+  yggdrasil:
+    image: 'jc21/mariadb-aria:latest'
+    networks:
+      - valhalla
+    restart: unless-stopped
+    container_name: yggdrasil
+    environment:
+      MYSQL_ROOT_PASSWORD: 'npm'
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: 'npm'
+      MYSQL_PASSWORD: 'npm'
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+        
+networks:
+  valhalla:
+    driver: bridge

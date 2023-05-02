@@ -1,0 +1,39 @@
+version: '2'
+  
+services:
+  web1:
+    container_name: odin
+    image: nginx
+    networks:
+      - pub
+    volumes:
+      - ./nginx_web/html:/usr/share/nginx/html
+    ports:
+      - "81:80"
+        
+
+  web2:
+    container_name: thor
+    image: nginx
+    networks:
+      - pub
+    volumes:
+      - ./nginx_web2/html:/usr/share/nginx/html
+    ports:
+      - "82:80"
+        
+  proxy:
+    container_name: heimdall
+    image: nginx
+    networks:
+      - pub
+    volumes:
+      - ./nginx_proxy/html:/usr/share/nginx/html
+      - ./nginx_proxy/nginx_gpt.conf:/etc/nginx/nginx.conf
+    ports:
+      - "80:80"
+
+        
+networks:
+  pub:
+    driver: bridge
