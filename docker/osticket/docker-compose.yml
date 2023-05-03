@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  ticketing:
+    container_name: osticket
+    image: 'osticket/osticket'
+    networks:
+      - valhalla
+    environment:
+      # Mysql/Maria connection parameters:
+      DB_MYSQL_HOST: "yggdrasil"
+      DB_MYSQL_PORT: 3306
+      DB_MYSQL_USER: "npm"
+      DB_MYSQL_PASSWORD: "npm"
+      DB_MYSQL_NAME: "npm"
+    depends_on: 
+       - "db"
+    ports:
+      - '8080:80'
+
+  db:
+    container_name: minne
+    image: 'jc21/mariadb-aria:latest'
+    networks:
+      - valhalla
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: 'npm'
+      MYSQL_DATABASE: 'npm'
+      MYSQL_USER: 'npm'
+      MYSQL_PASSWORD: 'npm'
+    volumes:
+      - ./mysql:/var/lib/mysql
+
+networks:
+  valhalla:
+    driver: bridge
