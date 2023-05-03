@@ -1,1 +1,3 @@
-./osticket/mysql/*
+docker/osticket/mysql/
+docker/nginx_proxy_manager/data/
+docker/nginx_proxy_manager/mysql/
