@@ -1,37 +1,32 @@
-version: '2'
+version: '3.9'
 
 services:
-  ticketing:
-    container_name: osticket
-    image: 'osticket/osticket'
+  ost:
     networks:
-      - valhalla
+      - main_net
+    container_name: ost
+    image: campbellsoftwaresolutions/osticket
     environment:
-      # Mysql/Maria connection parameters:
-      DB_MYSQL_HOST: "yggdrasil"
-      DB_MYSQL_PORT: 3306
-      DB_MYSQL_USER: "npm"
-      DB_MYSQL_PASSWORD: "npm"
-      DB_MYSQL_NAME: "npm"
-    depends_on: 
-       - "db"
+      - MYSQL_HOST=ost_sql
+      - MYSQL_PASSWORD=secret
+      - MYSQL_USER=osticket
     ports:
-      - '8080:80'
+      - "80:8080"
+      - "8080:80"
+    links:
+      - ost_sql
 
-  db:
-    container_name: minne
-    image: 'jc21/mariadb-aria:latest'
+  ost_sql:
     networks:
-      - valhalla
-    restart: unless-stopped
+      - main_net
+    container_name: ost_sql
     environment:
-      MYSQL_ROOT_PASSWORD: 'npm'
-      MYSQL_DATABASE: 'npm'
-      MYSQL_USER: 'npm'
-      MYSQL_PASSWORD: 'npm'
-    volumes:
-      - ./mysql:/var/lib/mysql
+      - MYSQL_USER=osticket
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_PASSWORD=secret
+      - MYSQL_DATABASE=osticket
+    image: mariadb
 
 networks:
-  valhalla:
+  main_net:
     driver: bridge

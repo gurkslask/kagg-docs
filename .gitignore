@@ -1,3 +1,8 @@
 docker/osticket/mysql/
 docker/nginx_proxy_manager/data/
 docker/nginx_proxy_manager/mysql/
+docker/osticket/data
+docker/osticket/db
+docker/osticket/dbbackup
+docker/osticket/logs
+docker/osticket/mysql
