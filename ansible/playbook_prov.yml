@@ -1,0 +1,19 @@
+---
+- hosts: all
+  become: true
+
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+          
+
+    - name: Update and install packages
+      apt:
+        pkg:
+          - code
+          - dotnet-sdk
+        state: latest
+        update_cache: true

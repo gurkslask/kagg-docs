@@ -19,7 +19,6 @@
           - vim
           - git
           - ufw
-          - neovim
           - nginx  
           - apt-transport-https
           - ca-certificates
