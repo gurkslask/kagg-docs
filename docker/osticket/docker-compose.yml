@@ -1,0 +1,32 @@
+version: '3.9'
+
+services:
+  ost:
+    networks:
+      - main_net
+    container_name: ost
+    image: campbellsoftwaresolutions/osticket
+    environment:
+      - MYSQL_HOST=ost_sql
+      - MYSQL_PASSWORD=secret
+      - MYSQL_USER=osticket
+    ports:
+      - "80:8080"
+      - "8080:80"
+    links:
+      - ost_sql
+
+  ost_sql:
+    networks:
+      - main_net
+    container_name: ost_sql
+    environment:
+      - MYSQL_USER=osticket
+      - MYSQL_ROOT_PASSWORD=secret
+      - MYSQL_PASSWORD=secret
+      - MYSQL_DATABASE=osticket
+    image: mariadb
+
+networks:
+  main_net:
+    driver: bridge
