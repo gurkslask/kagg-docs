@@ -6,3 +6,4 @@ docker/osticket/db
 docker/osticket/dbbackup
 docker/osticket/logs
 docker/osticket/mysql
+seriell_program/.venv/*
