@@ -1,0 +1,144 @@
+---
+- hosts: all
+  vars:
+    - ansible_shell_type: powershell
+    - ansible_connection: ssh
+
+  tasks:
+    - name: ping
+      win_ping:
+
+          
+
+              # - name: Remove choco dir
+              # win_file:
+              # path: c:\ProgramData\chocolatey
+              # state: absent
+
+    - name: Install git
+      win_chocolatey:
+              name: 
+              - git
+              - vscode.install
+                #- docker-desktop
+                #- microsoft-windows-terminal
+                #- filezilla
+                #- filezilla-server
+              state: present
+      ignore_errors: true
+
+    - name: Set DNS
+      win_dns_client:
+          adapter_names: '*'
+          dns_servers:
+          - 192.168.20.157
+          - 8.8.8.8
+
+    - name: Copy powershell file
+      win_copy:
+          src: ./mappa.ps1
+          dest: 'C:\temp\'
+          remote_src: no
+
+    - name: Copy powershell run file
+      win_copy:
+          src: ./mappa_run.ps1
+          dest: 'C:\temp\'
+          remote_src: no
+
+    - name: Copy powershell copy file
+      win_copy:
+          src: ./copy.ps1
+          dest: 'C:\temp\'
+          remote_src: no
+
+    - name: Set executionpolicy
+      win_shell: Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force
+          
+    - name: Create task for mapping larskaggdata
+      win_scheduled_task:
+          name: MapDrive
+          path: \Custom
+          actions:
+          - path: C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe
+            arguments: -ExecutionPolicy Unrestricted -NonInteractive -File C:\temp\mappa_run.ps1
+          triggers:
+          - type: boot
+            delay: PT1M
+          username: Administrator
+          compatibility: 4
+
+
+
+    - name: Make user
+      win_user:
+          name: "{{ inventory_hostname }}"
+          password: Elev2023
+          state: present
+          groups:
+              - Användare
+
+                #- name: Stop Steam
+                #win_service:
+                #name: steam
+                #state: stopped
+    - name: Stop Steam
+      win_shell: stop-process -name steam
+      ignore_errors: true
+
+    - name: Remove Steam
+      win_file:
+          path: "C:/Program Files (x86)/Steam"
+          state: absent
+
+    - name: Stop Epic
+      tags: epic
+      win_shell: stop-process -name EpicGamesLauncher -Force
+      ignore_errors: true
+
+    - name: Remove Epic
+      tags: epic
+      win_file:
+          path: "C:/Program Files (x86)/Epic Games"
+          state: absent
+
+    - name: Remove Epic2 
+      tags: epic
+      win_file:
+          path: "C:/Program Files/Epic Games"
+          state: absent
+          
+          #- name: Shutdown
+          #tags: shutdown
+          #ansible.windows.win_command: "shutdown -s -f -t 0"
+          #- name: Powershell block
+          #block:
+          #- name: Run powershell file
+          #win_command: powershell.exe -ExecutionPolicy ByPass -File C:\temp\mappa.ps1
+          #vars:
+          #become is required to save and retrieve the credentials in the tasks
+          #ansible_become: yes
+          #ansible_become_method: runas
+          #ansible_become_user: Administrator
+          #ansible_become_pass: Minne2023
+
+            #- name: Map drive
+            #block:
+            #- name: Save credentials
+            #win_credential:
+            #name: server
+            #type: domain_password
+            #username: larskaggdata.local\elever
+            #secret: Minne2022
+            #state: present
+            ##- name: Map drive with cred
+            #win_mapped_drive:
+            #letter: Z
+            #path: \\larskaggdata.local\kagg_filer
+            #state: present
+            ##vars:
+            ## become is required to save and retrieve the credentials in the tasks
+            #ansible_become: yes
+            #ansible_become_method: runas
+            #ansible_become_user: Administrator
+            #ansible_become_pass: Minne2023
