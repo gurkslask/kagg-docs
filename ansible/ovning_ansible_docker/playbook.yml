@@ -1,0 +1,72 @@
+---
+- hosts: all
+  become: true
+  vars:
+    created_username: alex
+
+  tasks:
+    - name: Install aptitude
+      apt:
+        name: aptitude
+        state: latest
+        update_cache: true
+          
+
+    - name: Update and install packages
+      apt:
+        pkg:
+          - curl
+          - vim
+          - git
+          - ufw
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+          - python3-pip
+          - virtualenv
+          - python3-setuptools
+        state: latest
+        update_cache: true
+
+    - name: Add Docker GPG apt Key
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Add Docker Repository
+      apt_repository:
+        repo: deb https://download.docker.com/linux/ubuntu focal stable
+        state: present
+
+    - name: Update apt and install docker-ce
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: true
+
+    - name: Install Docker Module for Python
+      pip:
+        name: docker
+
+    - name: Update apt and install docker-compose
+      apt:
+        name: docker-compose
+        state: latest
+        update_cache: true
+
+    - name: make docker directory
+      file:
+        path: /srv/mydocker
+        state: directory
+        mode: '0777'
+
+    - name: Copy dockerfile
+      copy:
+        src: ./docker-compose.yml
+        dest: /srv/mydocker/docker-compose.yml
+
+    - name: Run docker compose
+      community.docker.docker_compose_v2:
+        project_src: /srv/mydocker/
+
