@@ -20,6 +20,8 @@
           - samba
           - samba-common
           - python3
+          - smbclient
+          - smbget
           
 
     - name: Add Docker's official GPG key
