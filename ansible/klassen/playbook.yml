@@ -1,8 +1,8 @@
 ---
 - hosts: all
   vars:
-    - ansible_shell_type: powershell
-    - ansible_connection: ssh
+    ansible_shell_type: powershell
+    ansible_connection: ssh
 
   tasks:
     - name: ping
@@ -29,10 +29,11 @@
 
     - name: Set DNS
       win_dns_client:
-          adapter_names: '*'
+          adapter_names: 'Ethernet'
           dns_servers:
           - 192.168.20.157
           - 8.8.8.8
+          ignore_errors: true
 
     - name: Copy powershell file
       win_copy:
@@ -65,7 +66,7 @@
           triggers:
           - type: boot
             delay: PT1M
-          username: Administrator
+          username: admin
           compatibility: 4
 
 
@@ -108,9 +109,9 @@
           path: "C:/Program Files/Epic Games"
           state: absent
           
-          #- name: Shutdown
-          #tags: shutdown
-          #ansible.windows.win_command: "shutdown -s -f -t 0"
+    - name: Shutdown
+      tags: shutdown
+      ansible.windows.win_command: "shutdown -s -f -t 0"
           #- name: Powershell block
           #block:
           #- name: Run powershell file
