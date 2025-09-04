@@ -26,13 +26,19 @@
                 #- filezilla-server
               state: present
       ignore_errors: true
+    - name: Remove libreoffice
+      win_chocolatey:
+          name:
+             - libreoffice
+          state: absent
+      # ignore_errors: true
 
     - name: Set DNS
       win_dns_client:
-          adapter_names: 'Ethernet'
+          adapter_names: 'vEthernet*Telia*'
           dns_servers:
-          - 192.168.20.157
-          - 8.8.8.8
+            - 192.168.20.157
+            - 8.8.8.8
           ignore_errors: true
 
     - name: Copy powershell file
@@ -53,6 +59,12 @@
           dest: 'C:\temp\'
           remote_src: no
 
+    - name: Copy powershell remove steam
+      win_copy:
+          src: ./removeSteam.ps1
+          dest: 'C:\temp\'
+          remote_src: no
+
     - name: Set executionpolicy
       win_shell: Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force
           
@@ -69,6 +81,18 @@
           username: admin
           compatibility: 4
 
+    - name: Create task for removing steam
+      win_scheduled_task:
+          name: RemoveSteam
+          path: \Custom
+          actions:
+          - path: C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe
+            arguments: -ExecutionPolicy Unrestricted -NonInteractive -File C:\temp\removeSteam.ps1
+          triggers:
+          - type: boot
+            delay: PT1M
+          username: admin
+          compatibility: 4
 
 
     - name: Make user
@@ -79,10 +103,6 @@
           groups:
               - Användare
 
-                #- name: Stop Steam
-                #win_service:
-                #name: steam
-                #state: stopped
     - name: Stop Steam
       win_shell: stop-process -name steam
       ignore_errors: true
@@ -91,6 +111,7 @@
       win_file:
           path: "C:/Program Files (x86)/Steam"
           state: absent
+      ignore_errors: true
 
     - name: Stop Epic
       tags: epic
